@@ -1,0 +1,12 @@
+{
+    "1": [
+        {
+            "type": "keyword",
+            "value": "error"
+        },
+        {
+            "type": "keyword",
+            "value": "warn"
+        }
+    ]
+}
