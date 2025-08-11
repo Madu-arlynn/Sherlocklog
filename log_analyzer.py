@@ -74,8 +74,19 @@ class LogAnalyzerApp:
         # Abrir arquivo
         ttk.Button(filter_frame, text="Abrir Arquivo Log", command=self.load_log_file).pack(pady=10)
 
+    def ensure_logs_loaded(self):
+        """Se não tiver logs carregados, pega o que está na caixa de texto."""
+        if not self.logs:
+            conteudo = self.text_area.get("1.0", tk.END).splitlines()
+            self.logs = [linha for linha in conteudo if linha.strip()]
+
     def load_log_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Arquivos de Log", "*.log")])
+        file_path = filedialog.askopenfilename(
+            filetypes=[
+                ("Arquivos de Texto", "*.log *.txt"),
+                ("Todos os Arquivos", "*.*")
+            ]
+        )
         if not file_path:
             return
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -85,7 +96,7 @@ class LogAnalyzerApp:
     def display_logs(self, logs):
         self.text_area.delete('1.0', tk.END)
         for line in logs:
-            self.text_area.insert(tk.END, line)
+            self.text_area.insert(tk.END, line if line.endswith("\n") else line + "\n")
 
     def add_keyword_filter(self):
         word = self.keyword_entry.get().strip()
@@ -109,12 +120,14 @@ class LogAnalyzerApp:
             cb.pack(anchor='w')
 
     def clear_filters(self):
+        self.ensure_logs_loaded()
         self.filters.clear()
         self.refresh_filter_list()
         self.filtered_logs = self.logs
         self.display_logs(self.logs)
 
     def apply_filters(self):
+        self.ensure_logs_loaded()
         active_filters = [f for f in self.filters if f['active'].get()]
         if not active_filters:
             self.display_logs(self.logs)
@@ -142,6 +155,7 @@ class LogAnalyzerApp:
         self.display_logs(filtered)
 
     def apply_date_filter(self):
+        self.ensure_logs_loaded()
         fmt = "%Y-%m-%d %H:%M:%S"
         try:
             start = datetime.strptime(self.start_entry.get(), fmt)
@@ -162,6 +176,7 @@ class LogAnalyzerApp:
         self.display_logs(result)
 
     def gerar_resumo(self):
+        self.ensure_logs_loaded()
         total = len(self.filtered_logs)
         erros = len([l for l in self.filtered_logs if "error" in l.lower()])
         avisos = len([l for l in self.filtered_logs if "warning" in l.lower()])
