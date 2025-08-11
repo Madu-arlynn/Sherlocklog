@@ -10,7 +10,7 @@ cursor = conn.cursor()
 def verify_user(user, password):
     cursor.execute('select * from Usuarios')
     result = cursor.fetchall()
-    if user in result[0][1]:
+    if user in result[0][1] and password in result[0][2]:
         return True
 
 def verify_password(self, password):
@@ -33,12 +33,17 @@ def main():
     elif menu == "Usuário":
         exibir_menu_usuario()
         
-        
+@st.dialog('dialogo criar usuario')
+def create_user():
+    st.title('Criar cadastro')
+    st.text_input('Insira o nome do aluno')
+    
         
 @st.dialog('dialogo inicial')
 def dialog_adm():
     st.subheader("""seja bem vindo""")
-    st.button('criar um novo usuario')
+    if st.button('Cadastrar aluno'):
+        pass
     st.button('listar usuarios')
     st.button('remover usuarios')
     
